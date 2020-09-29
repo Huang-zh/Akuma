@@ -34,7 +34,7 @@ public class SimpleTestDemo {
     public class DruidTask implements Runnable{
         @Override
         public void run() {
-            DataSourceSetting sourceSetting = new DataSourceSetting("testOfDruid","jdbc:mysql://localhost:3306/soft-database?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
+            DataSourceSetting sourceSetting = new DataSourceSetting("testOfDruid","jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                     ,"root","123456");
             boolean flag = druidDataSourceRegister.dataSourceRegistry(sourceSetting);
             System.out.println(flag);
@@ -44,9 +44,9 @@ public class SimpleTestDemo {
     public class HikariTask implements Runnable{
         @Override
         public void run() {
-            DataSourceSetting sourceSetting =new DataSourceSetting("testOfHikari","jdbc:mysql://192.168.2.116:3306/soft-database" +
+            DataSourceSetting sourceSetting =new DataSourceSetting("testOfHikari","jdbc:mysql://localhost:3306/test" +
                     "?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
-                    ,"root","root");
+                    ,"root","123456");
             boolean flag = hikariDataSourceRegister.dataSourceRegistry(sourceSetting);
             System.out.println(flag);
         }
