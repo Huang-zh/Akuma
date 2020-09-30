@@ -6,7 +6,7 @@ package com.huang.akuma.constants;
  * @Description: 数据源种类
  */
 public enum DataSourceType implements com.huang.akuma.datasource.api.DataSourceType {
-    HIKARI("HikariCP"),C3P0("C3P0"),DRUID("Druid");
+    HIKARI("HikariCP"),DRUID("Druid");
 
     private String name;
 

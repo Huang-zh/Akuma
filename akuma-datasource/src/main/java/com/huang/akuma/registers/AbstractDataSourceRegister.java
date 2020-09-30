@@ -2,10 +2,11 @@ package com.huang.akuma.registers;
 
 import com.huang.akuma.constants.DataBaseType;
 import com.huang.akuma.constants.DriverType;
-import com.huang.akuma.datasource.api.DataSourceRegister;
+import com.huang.akuma.datasource.api.registers.DataSourceRegister;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.FactoryBean;
 
 import javax.sql.DataSource;
 import java.util.UUID;
@@ -30,10 +31,11 @@ public abstract class AbstractDataSourceRegister implements DataSourceRegister {
      * @Description 注册数据源
      * @Date 2020/9/28 14:33
      */
-    public boolean dataSourceRegistry(DataSourceSetting dataSourceSetting){
+    public DataSource dataSourceRegistry(DataSourceSetting dataSourceSetting){
+        DataSource targetDataSource = null;
         if (StringUtils.isBlank(dataSourceSetting.getName())){
             log.error("请为当前添加的数据源指定一个名称！");
-            return false;
+            return targetDataSource;
         }
         boolean flag = false;
         String dataSourceId = UUID.randomUUID().toString();
@@ -41,7 +43,7 @@ public abstract class AbstractDataSourceRegister implements DataSourceRegister {
         try {
             DataSource dataSource = buildDataSource(dataSourceSetting);
             if (checkDataSource(dataSource)){
-                flag = dataSourceRegistry(dataSource);
+                targetDataSource = dataSourceRegistry(dataSource);
             } else {
                 log.error("当前id为{}的数据源连接异常！",dataSourceId);
             }
@@ -50,7 +52,7 @@ public abstract class AbstractDataSourceRegister implements DataSourceRegister {
         }finally {
             lock.unlock();
         }
-        return flag;
+        return targetDataSource;
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.huang.akuma.datasource.api;
+package com.huang.akuma.datasource.api.registers;
 
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 
@@ -18,7 +18,7 @@ public interface DataSourceRegister {
      */
     DataSource buildDataSource(DataSourceSetting dataSourceSetting);
 
-    boolean dataSourceRegistry(DataSource dataSource);
+    DataSource dataSourceRegistry(DataSource dataSource);
 
     /**
      * @Author Huang.zh

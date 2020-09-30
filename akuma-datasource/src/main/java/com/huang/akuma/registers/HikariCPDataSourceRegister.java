@@ -47,16 +47,16 @@ public class HikariCPDataSourceRegister extends AbstractDataSourceRegister{
     }
 
     @Override
-    public boolean dataSourceRegistry(DataSource dataSource) {
+    public DataSource dataSourceRegistry(DataSource dataSource) {
         try {
             HikariDataSource hikariDataSource = (HikariDataSource)dataSource;
             existDataSources.putIfAbsent(hikariDataSource.getPoolName(),hikariDataSource);
             existDataSourceNames.add(hikariDataSource.getPoolName());
-            return true;
+            return hikariDataSource;
         }catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     @Override

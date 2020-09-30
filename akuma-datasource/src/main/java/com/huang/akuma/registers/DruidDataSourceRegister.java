@@ -40,17 +40,17 @@ public class DruidDataSourceRegister extends AbstractDataSourceRegister {
     }
 
     @Override
-    public boolean dataSourceRegistry(DataSource dataSource) {
+    public DataSource dataSourceRegistry(DataSource dataSource) {
         try {
             DruidDataSource druidDataSource = (DruidDataSource)dataSource;
             druidDataSource.init();
             existDataSources.putIfAbsent(druidDataSource.getName(),druidDataSource);
             existDataSourceNames.add(druidDataSource.getName());
-            return true;
+            return druidDataSource;
         }catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     @Override

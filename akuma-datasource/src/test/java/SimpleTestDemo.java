@@ -36,8 +36,7 @@ public class SimpleTestDemo {
         public void run() {
             DataSourceSetting sourceSetting = new DataSourceSetting("testOfDruid","jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                     ,"root","123456");
-            boolean flag = druidDataSourceRegister.dataSourceRegistry(sourceSetting);
-            System.out.println(flag);
+            druidDataSourceRegister.dataSourceRegistry(sourceSetting);
         }
     }
 
@@ -47,8 +46,7 @@ public class SimpleTestDemo {
             DataSourceSetting sourceSetting =new DataSourceSetting("testOfHikari","jdbc:mysql://localhost:3306/test" +
                     "?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                     ,"root","123456");
-            boolean flag = hikariDataSourceRegister.dataSourceRegistry(sourceSetting);
-            System.out.println(flag);
+            hikariDataSourceRegister.dataSourceRegistry(sourceSetting);
         }
     }
 }
