@@ -9,13 +9,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * @description:
+ * @description: 测试用例
  * @author: huang.zh
  * @create: 2020-10-01 21:39
  **/
 public class SimpleJsonTemplateTestDemo {
 
-    AbstractDynamicJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateRegister(DataSourceType.DRUID);
+//    AbstractDynamicJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateRegister(DataSourceType.DRUID);
+    AbstractDynamicJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateRegister(DataSourceType.HIKARI);
 
     @Test
     public void test() throws InterruptedException {

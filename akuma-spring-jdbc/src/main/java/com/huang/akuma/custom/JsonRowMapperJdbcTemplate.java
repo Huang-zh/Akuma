@@ -39,15 +39,10 @@ public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
     protected static class JsonRowMapper implements RowMapper<ObjectNode>{
 
 
-
         private static ObjectMapper mapper;
 
         public JsonRowMapper(boolean ignoreLowerCase) {
-            //指定序列化的工具类
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(new ResultSetSerializer());
             mapper = new ObjectMapper();
-            mapper.registerModule(module);
             //格式化json
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
             //总是序列化json
@@ -61,12 +56,11 @@ public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
             mapper.setDateFormat(new SimpleDateFormat(TemplateConstants.DEFAULT_JSON_DATE_TIME_FORMAT));
             //是否忽略大小写
             mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, ignoreLowerCase);
-
+            // TODO: 2020-10-01 通过构造函数指定是否开启驼峰命名转换
         }
 
         @Override
         public ObjectNode mapRow(ResultSet resultSet, int i) throws SQLException {
-            // TODO: 2020-09-30 使用jackson将resultSet转化为json 考虑这个连接下的第一个热门答案 https://www.javaroad.cn/articles/2192
             ObjectNode objectNode = mapper.createObjectNode();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int totalColumnCount = metaData.getColumnCount();
@@ -189,55 +183,5 @@ public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
         }
         return "";
     }
-
-
-    /**
-     * @Author huang.zh
-     * @Description //序列化工具
-     * @Date 21:29 2020-10-01
-     **/
-    protected static class ResultSetSerializer extends JsonSerializer<ResultSet>{
-        @Override
-        public Class<ResultSet> handledType() {
-            return ResultSet.class;
-        }
-
-        @Override
-        public void serialize(ResultSet resultSet, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            try {
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int totalColumnCount = metaData.getColumnCount();
-                String[] columnNames = new String[totalColumnCount];
-                int[] columnTypes = new int[totalColumnCount];
-
-
-                for (int i = 0; i < columnNames.length; i++) {
-                    columnNames[i] = metaData.getColumnLabel(i + 1);
-                    columnTypes[i] = metaData.getColumnType(i + 1);
-                }
-
-                jsonGenerator.writeStartArray();
-
-
-                while (resultSet.next()) {
-
-                    boolean b;
-                    long l;
-                    double d;
-
-                    jsonGenerator.writeStartObject();
-
-
-
-                    jsonGenerator.writeEndObject();
-                }
-
-                jsonGenerator.writeEndArray();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
 }
