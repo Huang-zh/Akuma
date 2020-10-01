@@ -10,4 +10,6 @@ public class TemplateConstants {
     public static final String JDBC_TEMPLATE_PREFIX = "JdbcTemplate_";
 
     public static final String DEFAULT_JSON_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    public static final String DEFAULT_OBJECT_NODE_INDEX = "data";
 }

@@ -1,5 +1,7 @@
 package com.huang.akuma.register;
 
+import com.huang.akuma.constants.DataSourceType;
+import com.huang.akuma.custom.JsonRowMapperJdbcTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -9,10 +11,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
  **/
 public class JsonRowMapperJdbcTemplateRegister extends AbstractDynamicJdbcTemplateRegister{
 
+    public JsonRowMapperJdbcTemplateRegister(DataSourceType dataSourceType) {
+        super(dataSourceType);
+    }
+
     @Override
     protected JdbcTemplate customJdbcTemplate() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate();
-//        jdbcTemplate.query()
-        return null;
+        JdbcTemplate jdbcTemplate = new JsonRowMapperJdbcTemplate(true);
+        return jdbcTemplate;
     }
+
+
 }

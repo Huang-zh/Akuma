@@ -30,12 +30,12 @@ public abstract class AbstractDynamicJdbcTemplateRegister implements DynamicRegi
     private static ReentrantLock lock;
 
 
-    public AbstractDynamicJdbcTemplateRegister() {
+    private AbstractDynamicJdbcTemplateRegister() {
         this.templateMap = new ConcurrentHashMap<>(64);
         lock = new ReentrantLock();
     }
 
-    private AbstractDynamicJdbcTemplateRegister(DataSourceType type){
+    public AbstractDynamicJdbcTemplateRegister(DataSourceType type){
         this();
         switch (type){
             case DRUID:
