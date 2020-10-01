@@ -22,7 +22,7 @@ public class SimpleJsonTemplateTestDemo {
         DataSourceSetting sourceSetting = new DataSourceSetting("testOfDruid","jdbc:mysql://www.lemonhuang.com:3306/zrlog_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                 ,"root","123456");
         JdbcTemplate jdbcTemplate = this.register.register(sourceSetting);
-        System.out.println(((JsonRowMapperJdbcTemplate)jdbcTemplate).queryForJson("SELECT * FROM foot_slogen LIMIT 1"));
+        System.out.println(((JsonRowMapperJdbcTemplate)jdbcTemplate).queryForJsonString("SELECT * FROM foot_slogen LIMIT 2"));
         new CountDownLatch(1).await();
     }
 }

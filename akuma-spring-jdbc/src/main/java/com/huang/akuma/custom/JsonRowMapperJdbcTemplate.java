@@ -2,6 +2,7 @@ package com.huang.akuma.custom;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -25,20 +26,23 @@ import java.util.Map;
  **/
 public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
 
-    private boolean lowerCase;
+    private boolean ignoreLowerCase;
 
-    private JsonRowMapper mapper = new JsonRowMapper();
+    private JsonRowMapper mapper;
 
 
-    public JsonRowMapperJdbcTemplate(boolean lowerCase) {
-        this.lowerCase = lowerCase;
+    public JsonRowMapperJdbcTemplate(boolean ignoreLowerCase) {
+        this.ignoreLowerCase = ignoreLowerCase;
+        mapper = new JsonRowMapper(ignoreLowerCase);
     }
 
     protected static class JsonRowMapper implements RowMapper<ObjectNode>{
 
+
+
         private static ObjectMapper mapper;
 
-        public JsonRowMapper() {
+        public JsonRowMapper(boolean ignoreLowerCase) {
             //指定序列化的工具类
             SimpleModule module = new SimpleModule();
             module.addSerializer(new ResultSetSerializer());
@@ -55,6 +59,9 @@ public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
             //修改序列化后日期格式
             mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
             mapper.setDateFormat(new SimpleDateFormat(TemplateConstants.DEFAULT_JSON_DATE_TIME_FORMAT));
+            //是否忽略大小写
+            mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, ignoreLowerCase);
+
         }
 
         @Override
@@ -151,11 +158,36 @@ public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
 
             return objectNode;
         }
+
+
+        public String castObjectToJsonString(Object object) throws JsonProcessingException {
+            String value = mapper.writeValueAsString(object);
+            return value;
+        }
     }
 
-    public ObjectNode queryForJson(String sql){
-        ObjectNode jsonNodes= queryForObject(sql, mapper);
+    public ObjectNode queryForJson(String sql,Object... args){
+        ObjectNode jsonNodes= queryForObject(sql, mapper,args);
         return jsonNodes;
+    }
+
+    public List<ObjectNode> queryForJsonList(String sql, Object... args){
+        List<ObjectNode> nodes = query(sql, mapper,args);
+        return nodes;
+    }
+
+    public String queryForJsonString(String sql,Object... args){
+        List<ObjectNode> nodes = queryForJsonList(sql, args);
+        try {
+            if (nodes.size() == 1){
+                return mapper.castObjectToJsonString(nodes.get(0));
+            } else {
+                return mapper.castObjectToJsonString(nodes);
+            }
+        }catch (JsonProcessingException e){
+            e.printStackTrace();
+        }
+        return "";
     }
 
 
