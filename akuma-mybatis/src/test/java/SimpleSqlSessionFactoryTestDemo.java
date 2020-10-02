@@ -32,6 +32,7 @@ public class SimpleSqlSessionFactoryTestDemo {
         try(SqlSession sqlSession = factory.openSession(ExecutorType.SIMPLE,TransactionIsolationLevel.READ_COMMITTED)) {
             JdbcTransaction transaction = new JdbcTransaction(sqlSession.getConnection());
             // TODO: 2020-10-02 无法通过当前方式直接执行sql语句，考虑引入字节码技术动态生成mapper，通过mapper代理对象进行ORM操作
+            // TODO: 考虑一下这两个连接：https://www.cnblogs.com/yanjie-java/p/7940929.html，https://www.cnblogs.com/it-mh/p/10755209.html
         }catch (Exception e){
             e.printStackTrace();
         }
