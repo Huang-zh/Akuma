@@ -11,6 +11,7 @@
         <module>akuma-api</module>
         <module>akuma-datasource</module>
         <module>akuma-spring-jdbc</module>
+        <module>akuma-mybatis</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -6,10 +6,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * @Author huang.zh
- * @Description 动态注册ORM工具类抽象
+ * @Description 动态注册JdbcTemplate工具类抽象
  * @Date 09:29 2020-09-30
  **/
-public interface DynamicRegister {
+public interface DynamicJdbcTemplateRegister {
 
     /**
      * @Author huang.zh

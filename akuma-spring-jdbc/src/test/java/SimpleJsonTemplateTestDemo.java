@@ -1,8 +1,8 @@
 import com.huang.akuma.constants.DataSourceType;
 import com.huang.akuma.custom.JsonRowMapperJdbcTemplate;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
-import com.huang.akuma.register.AbstractDynamicJdbcTemplateRegister;
-import com.huang.akuma.register.JsonRowMapperJdbcTemplateRegister;
+import com.huang.akuma.register.AbstractDynamicJdbcTemplateJdbcTemplateRegister;
+import com.huang.akuma.register.JsonRowMapperJdbcTemplateJdbcTemplateRegister;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -15,15 +15,15 @@ import java.util.concurrent.CountDownLatch;
  **/
 public class SimpleJsonTemplateTestDemo {
 
-//    AbstractDynamicJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateRegister(DataSourceType.DRUID);
-    AbstractDynamicJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateRegister(DataSourceType.HIKARI);
+//    AbstractDynamicJdbcTemplateJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateJdbcTemplateRegister(DataSourceType.DRUID);
+    AbstractDynamicJdbcTemplateJdbcTemplateRegister register = new JsonRowMapperJdbcTemplateJdbcTemplateRegister(DataSourceType.HIKARI);
 
     @Test
     public void test() throws InterruptedException {
-        DataSourceSetting sourceSetting = new DataSourceSetting("testOfDruid","jdbc:mysql://www.lemonhuang.com:3306/zrlog_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
+        DataSourceSetting sourceSetting = new DataSourceSetting("testOfDruid","jdbc:mysql://127.0.0.1:3306/shop?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                 ,"root","123456");
         JdbcTemplate jdbcTemplate = this.register.register(sourceSetting);
-        System.out.println(((JsonRowMapperJdbcTemplate)jdbcTemplate).queryForJsonString("SELECT * FROM foot_slogen LIMIT 2"));
+        System.out.println(((JsonRowMapperJdbcTemplate)jdbcTemplate).queryForJsonString("SELECT * FROM shop_product LIMIT 2"));
         new CountDownLatch(1).await();
     }
 }

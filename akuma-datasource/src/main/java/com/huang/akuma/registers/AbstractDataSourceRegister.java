@@ -6,7 +6,6 @@ import com.huang.akuma.datasource.api.registers.DataSourceRegister;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.FactoryBean;
 
 import javax.sql.DataSource;
 import java.util.UUID;

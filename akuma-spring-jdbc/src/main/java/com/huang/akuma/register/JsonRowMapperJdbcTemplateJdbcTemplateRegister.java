@@ -9,9 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author: huang.zh
  * @create: 2020-09-30 15:29
  **/
-public class JsonRowMapperJdbcTemplateRegister extends AbstractDynamicJdbcTemplateRegister{
+public class JsonRowMapperJdbcTemplateJdbcTemplateRegister extends AbstractDynamicJdbcTemplateJdbcTemplateRegister {
 
-    public JsonRowMapperJdbcTemplateRegister(DataSourceType dataSourceType) {
+    public JsonRowMapperJdbcTemplateJdbcTemplateRegister(DataSourceType dataSourceType) {
         super(dataSourceType);
     }
 

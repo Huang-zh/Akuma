@@ -2,7 +2,7 @@ package com.huang.akuma.register;
 
 import com.huang.akuma.constants.DataSourceType;
 import com.huang.akuma.constants.TemplateConstants;
-import com.huang.akuma.datasource.api.registers.DynamicRegister;
+import com.huang.akuma.datasource.api.registers.DynamicJdbcTemplateRegister;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 import com.huang.akuma.registers.AbstractDataSourceRegister;
 import com.huang.akuma.registers.DruidDataSourceRegister;
@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @create: 2020-09-30 09:37
  **/
 @Slf4j
-public abstract class AbstractDynamicJdbcTemplateRegister implements DynamicRegister {
+public abstract class AbstractDynamicJdbcTemplateJdbcTemplateRegister implements DynamicJdbcTemplateRegister {
 
     private static ConcurrentHashMap<String, JdbcTemplate> templateMap;
 
@@ -30,12 +30,12 @@ public abstract class AbstractDynamicJdbcTemplateRegister implements DynamicRegi
     private static ReentrantLock lock;
 
 
-    private AbstractDynamicJdbcTemplateRegister() {
+    private AbstractDynamicJdbcTemplateJdbcTemplateRegister() {
         this.templateMap = new ConcurrentHashMap<>(64);
         lock = new ReentrantLock();
     }
 
-    public AbstractDynamicJdbcTemplateRegister(DataSourceType type){
+    public AbstractDynamicJdbcTemplateJdbcTemplateRegister(DataSourceType type){
         this();
         switch (type){
             case DRUID:
@@ -53,28 +53,33 @@ public abstract class AbstractDynamicJdbcTemplateRegister implements DynamicRegi
     @Override
     public JdbcTemplate register(DataSourceSetting dataSourceSetting) {
         lock.lock();
-        try {
-            DataSource dataSource = dataSourceRegister.dataSourceRegistry(dataSourceSetting);
-            JdbcTemplate jdbcTemplate = customJdbcTemplate();
-            Optional<JdbcTemplate> templateOptional = Optional.ofNullable(jdbcTemplate);
-            templateOptional.ifPresent(template -> {
-                Optional<DataSource> dataSourceOptional = Optional.ofNullable(dataSource);
-                dataSourceOptional.ifPresent(ds -> {
-                    template.setDatabaseProductName(dataSourceSetting.getName());
-                    template.setDataSource(ds);
+        String key = TemplateConstants.JDBC_TEMPLATE_PREFIX.concat(dataSourceSetting.getName());
+        if (templateMap.containsKey(key)){
+            return templateMap.get(key);
+        } else {
+            try {
+                DataSource dataSource = dataSourceRegister.dataSourceRegistry(dataSourceSetting);
+                JdbcTemplate jdbcTemplate = customJdbcTemplate();
+                Optional<JdbcTemplate> templateOptional = Optional.ofNullable(jdbcTemplate);
+                templateOptional.ifPresent(template -> {
+                    Optional<DataSource> dataSourceOptional = Optional.ofNullable(dataSource);
+                    dataSourceOptional.ifPresent(ds -> {
+                        template.setDatabaseProductName(dataSourceSetting.getName());
+                        template.setDataSource(ds);
+                    });
                 });
-            });
-            JdbcTemplate template = templateOptional.get();
-            templateMap.putIfAbsent(
-                    TemplateConstants.JDBC_TEMPLATE_PREFIX.concat(dataSourceSetting.getName()),
-                    template);
-            return template;
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            lock.unlock();
+                JdbcTemplate template = templateOptional.get();
+                templateMap.putIfAbsent(
+                        TemplateConstants.JDBC_TEMPLATE_PREFIX.concat(dataSourceSetting.getName()),
+                        template);
+                return template;
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                lock.unlock();
+            }
+            return null;
         }
-        return null;
     }
 
     @Override

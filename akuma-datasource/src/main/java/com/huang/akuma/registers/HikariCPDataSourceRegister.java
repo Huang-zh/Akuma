@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @Description: HikariCP数据源注册类
  */
 @Slf4j
-public class HikariCPDataSourceRegister extends AbstractDataSourceRegister{
+public class HikariCPDataSourceRegister extends AbstractDataSourceRegister {
 
     private Map<String,HikariDataSource> existDataSources;
 

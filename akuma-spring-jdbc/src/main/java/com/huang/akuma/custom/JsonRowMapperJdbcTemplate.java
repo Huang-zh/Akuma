@@ -56,7 +56,6 @@ public class JsonRowMapperJdbcTemplate extends JdbcTemplate {
             mapper.setDateFormat(new SimpleDateFormat(TemplateConstants.DEFAULT_JSON_DATE_TIME_FORMAT));
             //是否忽略大小写
             mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, ignoreLowerCase);
-            // TODO: 2020-10-01 通过构造函数指定是否开启驼峰命名转换
         }
 
         @Override
