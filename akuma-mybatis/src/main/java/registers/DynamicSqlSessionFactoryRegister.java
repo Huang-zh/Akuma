@@ -50,6 +50,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             }finally {
                 lock.unlock();
             }
+
             return targetSqlSessionFactory[0];
         }
     }

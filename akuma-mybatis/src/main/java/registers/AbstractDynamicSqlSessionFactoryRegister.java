@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 @Slf4j
 public abstract class AbstractDynamicSqlSessionFactoryRegister implements com.huang.akuma.datasource.api.registers.DynamicSqlSessionFactoryRegister {
 
+
     protected static AbstractDataSourceRegister dataSourceRegister;
 
     public AbstractDynamicSqlSessionFactoryRegister() {
