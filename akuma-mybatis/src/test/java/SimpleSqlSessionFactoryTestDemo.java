@@ -83,22 +83,6 @@ public class SimpleSqlSessionFactoryTestDemo {
         }
     }
 
-
-    public class MyInvocationHandler implements InvocationHandler {
-
-        private Object target;
-
-        public MyInvocationHandler(Object target) {
-            this.target = target;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            return method.invoke(target,args);
-        }
-    }
-
-
     public static List<Map<String, Object>> convertList(ResultSet rs) {
         List<Map<String, Object>> list = new ArrayList<>();
         try (ResultSet resultSet = rs){
