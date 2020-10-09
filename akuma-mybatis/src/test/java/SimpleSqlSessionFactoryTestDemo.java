@@ -43,7 +43,7 @@ public class SimpleSqlSessionFactoryTestDemo {
     @Test
     public void test() throws Throwable {
         String dataSourceName = "testOfShopWithDruid";
-        DataSourceSetting sourceSetting = new DataSourceSetting(dataSourceName,"jdbc:mysql://127.0.0.1:3306/shop?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
+        DataSourceSetting sourceSetting = new DataSourceSetting(dataSourceName,"jdbc:mysql://127.0.0.1:3306/logging-system?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                 ,"root","123456");
         SqlSessionFactory factory = register.sqlSessionFactoryRegistry(sourceSetting);
         DataSource dataSource = factory.getConfiguration().getEnvironment().getDataSource();
@@ -64,11 +64,6 @@ public class SimpleSqlSessionFactoryTestDemo {
                     targetContent = Parser.parse("${","}",targetContent,lineToHump(tableName),tableName);
                     String name = lineToHump(tableName) + "Mapper";
                     Class interfaceImpl = compile(name,targetContent);//这里要写全类名
-//                    Object instance = Proxy.newProxyInstance(
-//                            interfaceImpl.getClassLoader(),
-//                            new Class[]{interfaceImpl},
-//                            new MyInvocationHandler(sqlSession.getMapper(interfaceImpl))
-//                    );
                     TransactionFactory transactionFactory = new JdbcTransactionFactory();
                     Environment environment = new Environment("development", transactionFactory, dataSource);
                     Configuration configuration = new Configuration(environment);
@@ -159,12 +154,10 @@ public class SimpleSqlSessionFactoryTestDemo {
         Iterable<? extends JavaFileObject> fileObjects = Arrays.asList(srcObject);
         String flag = "-d";
         String path = this.getClass().getClassLoader().getResource("").getPath();
-//        path = path.concat("mappers");
         File file = new File(path);
         if (!file.exists()){
             file.mkdirs();
         }
-//        String outDir = "D:\\";
         Iterable<String> options = Arrays.asList(flag, path);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, options, null, fileObjects);
         boolean result = task.call();
@@ -176,17 +169,6 @@ public class SimpleSqlSessionFactoryTestDemo {
             catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            /*ClassLoader loader = CompileTest.class.getClassLoader();
-            Class<?> cls;
-            try
-            {
-                cls = loader.loadClass(name);
-                return cls;
-            }
-            catch (ClassNotFoundException e)
-            {
-                e.printStackTrace();
-            }*/
         }
 
         return null;
