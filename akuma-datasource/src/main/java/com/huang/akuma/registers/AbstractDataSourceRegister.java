@@ -73,4 +73,6 @@ public abstract class AbstractDataSourceRegister implements DataSourceRegister {
         return driverName;
     }
 
+    public abstract DataSource targetDataSource(String identity);
+
 }

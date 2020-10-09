@@ -1,30 +1,27 @@
 import com.huang.akuma.constants.DataSourceType;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
-import org.apache.ibatis.parsing.GenericTokenParser;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.TransactionIsolationLevel;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.*;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import parser.Parser;
 import registers.DynamicClassRegistry;
 import registers.DynamicSqlSessionFactoryRegister;
 
+import javax.sql.DataSource;
+import javax.tools.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,11 +38,15 @@ public class SimpleSqlSessionFactoryTestDemo {
 
     private DynamicClassRegistry dynamicClassRegistry = new DynamicClassRegistry();
 
+
+
     @Test
-    public void test(){
-        DataSourceSetting sourceSetting = new DataSourceSetting("testOfShopWithDruid","jdbc:mysql://127.0.0.1:3306/shop?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
+    public void test() throws Throwable {
+        String dataSourceName = "testOfShopWithDruid";
+        DataSourceSetting sourceSetting = new DataSourceSetting(dataSourceName,"jdbc:mysql://127.0.0.1:3306/shop?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                 ,"root","123456");
         SqlSessionFactory factory = register.sqlSessionFactoryRegistry(sourceSetting);
+        DataSource dataSource = factory.getConfiguration().getEnvironment().getDataSource();
         ArrayList<String> list = new ArrayList<>(factory.getConfiguration().getMappedStatementNames());
         System.out.println(list);
 //        System.out.println(factory.getConfiguration().getCacheNames());
@@ -61,15 +62,23 @@ public class SimpleSqlSessionFactoryTestDemo {
                     String tableName = String.valueOf(map.get("TABLE_NAME"));
                     String targetContent = content;
                     targetContent = Parser.parse("${","}",targetContent,lineToHump(tableName),tableName);
-
-                    Class interfaceImpl = Class.forName("StudentMapper");//这里要写全类名
-                    Object instance = Proxy.newProxyInstance(
-                            interfaceImpl.getClassLoader(),
-                            new Class[]{interfaceImpl},
-                            new MyInvocationHandler(sqlSession.getMapper(interfaceImpl))
-                    );
-
-                    System.out.println(targetContent);
+                    String name = lineToHump(tableName) + "Mapper";
+                    Class interfaceImpl = compile(name,targetContent);//这里要写全类名
+//                    Object instance = Proxy.newProxyInstance(
+//                            interfaceImpl.getClassLoader(),
+//                            new Class[]{interfaceImpl},
+//                            new MyInvocationHandler(sqlSession.getMapper(interfaceImpl))
+//                    );
+                    TransactionFactory transactionFactory = new JdbcTransactionFactory();
+                    Environment environment = new Environment("development", transactionFactory, dataSource);
+                    Configuration configuration = new Configuration(environment);
+                    configuration.addMapper(interfaceImpl);
+                    factory = new SqlSessionFactoryBuilder().build(configuration);
+                    SqlSession sqlSession1 = factory.openSession();
+                    Object mapper = sqlSession1.getMapper(interfaceImpl);
+                    Method load = interfaceImpl.getDeclaredMethod("load", int.class);
+                    Object result = load.invoke(mapper, 1);
+                    System.out.println(result);
                 }
                 i++;
             }
@@ -140,5 +149,59 @@ public class SimpleSqlSessionFactoryTestDemo {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    public Class<?> compile(String name, String content) {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        String targetName = "mappers.".concat(name);
+        StrSrcJavaObject srcObject = new StrSrcJavaObject(name, content);
+        Iterable<? extends JavaFileObject> fileObjects = Arrays.asList(srcObject);
+        String flag = "-d";
+        String path = this.getClass().getClassLoader().getResource("").getPath();
+//        path = path.concat("mappers");
+        File file = new File(path);
+        if (!file.exists()){
+            file.mkdirs();
+        }
+//        String outDir = "D:\\";
+        Iterable<String> options = Arrays.asList(flag, path);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, options, null, fileObjects);
+        boolean result = task.call();
+        if (result == true) {
+            System.out.println("Compile it successfully.");
+            try {
+                return Class.forName(targetName);
+            }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            /*ClassLoader loader = CompileTest.class.getClassLoader();
+            Class<?> cls;
+            try
+            {
+                cls = loader.loadClass(name);
+                return cls;
+            }
+            catch (ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }*/
+        }
+
+        return null;
+    }
+
+    private static class StrSrcJavaObject extends SimpleJavaFileObject {
+        private String content;
+
+        public StrSrcJavaObject(String name, String content) {
+            super(URI.create("string:///" + name.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
+            this.content = content;
+        }
+
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+            return content;
+        }
     }
 }

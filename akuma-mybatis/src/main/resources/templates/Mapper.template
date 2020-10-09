@@ -1,3 +1,5 @@
+package mappers;
+
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;

@@ -72,4 +72,8 @@ public class DruidDataSourceRegister extends AbstractDataSourceRegister {
         return druidDataSource;
     }
 
+    @Override
+    public DataSource targetDataSource(String identity) {
+        return existDataSources.get(identity);
+    }
 }

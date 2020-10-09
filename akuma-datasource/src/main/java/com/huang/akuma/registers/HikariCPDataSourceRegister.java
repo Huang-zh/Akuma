@@ -63,4 +63,9 @@ public class HikariCPDataSourceRegister extends AbstractDataSourceRegister {
     public boolean checkDataSource(DataSource dataSource) {
         return ((HikariDataSource)dataSource).isRunning();
     }
+
+    @Override
+    public DataSource targetDataSource(String identity) {
+        return existDataSources.get(identity);
+    }
 }

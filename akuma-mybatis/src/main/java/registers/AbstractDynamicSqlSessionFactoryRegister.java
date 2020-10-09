@@ -64,4 +64,8 @@ public abstract class AbstractDynamicSqlSessionFactoryRegister implements com.hu
         return sqlSessionFactory;
     }
 
+    public DataSource targetDataSource(String identity){
+        return dataSourceRegister.targetDataSource(identity);
+    }
+
 }
