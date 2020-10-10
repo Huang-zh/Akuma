@@ -28,6 +28,8 @@ public abstract class AbstractDynamicSqlSessionFactoryRegister implements com.hu
 
     protected static AbstractDataSourceRegister dataSourceRegister;
 
+    private SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
+
     public AbstractDynamicSqlSessionFactoryRegister() {
 
     }
@@ -60,7 +62,7 @@ public abstract class AbstractDynamicSqlSessionFactoryRegister implements com.hu
         }
         Environment environment = new Environment(dataSourceName, transactionFactory, dataSource);
         Configuration configuration = new Configuration(environment);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(configuration);
         return sqlSessionFactory;
     }
 
