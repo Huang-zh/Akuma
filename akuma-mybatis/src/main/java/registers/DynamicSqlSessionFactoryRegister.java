@@ -130,9 +130,20 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
     private boolean mapperRegistry(SqlSessionFactory sqlSessionFactory, String dataSourceName, DataBaseType dataBaseType){
         boolean flag = false;
         try(SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE, TransactionIsolationLevel.READ_COMMITTED)) {
-            ResultSet resultSet = sqlSession.getConnection()
-                    .prepareStatement("select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=(select database())")
-                    .executeQuery();
+            String findTableSql = "";
+            switch (dataBaseType){
+                case MYSQL:
+                    findTableSql = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=(select database())";
+                    break;
+                case SQL_SERVER:
+                    findTableSql = "SELECT Name AS TABLE_NAME FROM SysObjects WHERE XType='U'";
+                    break;
+                case ORACLE:
+                    // TODO: 2020-10-10 oracle待测试
+                    findTableSql = "";
+                    break;
+            }
+            ResultSet resultSet = sqlSession.getConnection().prepareStatement(findTableSql).executeQuery();
             List<Map<String, Object>> mapList = convertList(resultSet);
             String content = getFileContent("templates\\Mapper.template");
             List<Class> mapperClasses = new ArrayList<>();
