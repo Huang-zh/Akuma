@@ -1,6 +1,8 @@
 package registers;
 
+import com.huang.akuma.constants.DataBaseType;
 import com.huang.akuma.constants.DataSourceType;
+import com.huang.akuma.constants.DriverType;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 import constants.SqlSessionFactoryConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -69,8 +71,9 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
                 Optional.ofNullable(dataSource).ifPresent(ds -> {
                     SqlSessionFactory sqlSessionFactory = buildSqlSessionFactory(ds);
                     Optional.ofNullable(sqlSessionFactory).ifPresent(factory -> {
+
                         //注册mapper
-                        if (mapperRegistry(factory,dataSourceSetting.getName())){
+                        if (mapperRegistry(factory,dataSourceSetting.getName(),judgeDatabase(dataSourceSetting.getUrl()))){
                             targetSqlSessionFactory[0] = targetSqlSessionFactory(key);
                             sqlSessionFactoryMap.putIfAbsent(key,targetSqlSessionFactory[0]);
                         }
@@ -84,6 +87,8 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             return targetSqlSessionFactory[0];
         }
     }
+
+
 
     @Override
     public SqlSessionFactory targetSqlSessionFactory(String identity) {
@@ -122,7 +127,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
      * @Param [sqlSessionFactory]
      * @return  boolean
      **/
-    private boolean mapperRegistry(SqlSessionFactory sqlSessionFactory,String dataSourceName){
+    private boolean mapperRegistry(SqlSessionFactory sqlSessionFactory, String dataSourceName, DataBaseType dataBaseType){
         boolean flag = false;
         try(SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE, TransactionIsolationLevel.READ_COMMITTED)) {
             ResultSet resultSet = sqlSession.getConnection()
@@ -161,7 +166,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             ResultSetMetaData md = resultSet.getMetaData();
             int columnCount = md.getColumnCount();
             while (resultSet.next()) {
-                Map<String, Object> rowData = new HashMap<String, Object>();
+                Map<String, Object> rowData = new HashMap<>();
                 for (int i = 1; i <= columnCount; i++) {
                     rowData.put(md.getColumnName(i), resultSet.getObject(i));
                 }
@@ -195,6 +200,20 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             content.append(line);
         }
         return content.toString();
+    }
+
+    private DataBaseType judgeDatabase(String url){
+        String[] array = url.split(":");
+        String prefix = array[1];
+        DataBaseType result = null;
+        if (DataBaseType.MYSQL.getPrefix().equals(prefix)){
+            result = DataBaseType.MYSQL;
+        }else if (DataBaseType.SQL_SERVER.getPrefix().equals(prefix)){
+            result = DataBaseType.SQL_SERVER;
+        }else if (DataBaseType.ORACLE.getPrefix().equals(prefix)){
+            result = DataBaseType.ORACLE;
+        }
+        return result;
     }
 
     private class MapperClassHolder{
