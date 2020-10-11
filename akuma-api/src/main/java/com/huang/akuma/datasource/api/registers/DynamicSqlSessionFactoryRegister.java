@@ -11,7 +11,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
  **/
 public interface DynamicSqlSessionFactoryRegister {
 
-    SqlSessionFactory sqlSessionFactoryRegistry(DataSourceSetting dataSourceSetting);
+    SqlSessionFactory sqlSessionFactoryRegistry(DataSourceSetting dataSourceSetting,String templatePath);
 
     SqlSessionFactory targetSqlSessionFactory(String identity);
 

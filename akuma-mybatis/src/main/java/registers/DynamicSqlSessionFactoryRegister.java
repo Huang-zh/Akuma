@@ -2,10 +2,10 @@ package registers;
 
 import com.huang.akuma.constants.DataBaseType;
 import com.huang.akuma.constants.DataSourceType;
-import com.huang.akuma.constants.DriverType;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 import constants.SqlSessionFactoryConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -48,6 +48,8 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
 
     private static HashMap<String,MapperClassHolder> classHolderMap;
 
+    private static final String DEFAULT_TEMPLATE_PATH = "templates\\Mapper.template";
+
 
     public DynamicSqlSessionFactoryRegister(DataSourceType dataSourceType){
         super(dataSourceType);
@@ -58,8 +60,13 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
         mapperRegistry = new DynamicMapperRegistry();
     }
 
-    @Override
     public SqlSessionFactory sqlSessionFactoryRegistry(DataSourceSetting dataSourceSetting) {
+        log.info("当前暂未指定mapper生成的路径，将使用默认路径：{}",DEFAULT_TEMPLATE_PATH);
+        return sqlSessionFactoryRegistry(dataSourceSetting,DEFAULT_TEMPLATE_PATH);
+    }
+
+    @Override
+    public SqlSessionFactory sqlSessionFactoryRegistry(DataSourceSetting dataSourceSetting,String templatePath) {
         lock.lock();
         String key = SqlSessionFactoryConstants.SQL_SESSION_FACTORY_PREFIX.concat(dataSourceSetting.getName());
         if (sqlSessionFactoryMap.containsKey(key)){
@@ -68,12 +75,14 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             final SqlSessionFactory[] targetSqlSessionFactory = {null};
             try {
                 DataSource dataSource = dataSourceRegister.dataSourceRegistry(dataSourceSetting);
+                String finalTemplatePath = templatePath;
                 Optional.ofNullable(dataSource).ifPresent(ds -> {
                     SqlSessionFactory sqlSessionFactory = buildSqlSessionFactory(ds);
                     Optional.ofNullable(sqlSessionFactory).ifPresent(factory -> {
 
                         //注册mapper
-                        if (mapperRegistry(factory,dataSourceSetting.getName(),judgeDatabase(dataSourceSetting.getUrl()))){
+                        if (mapperRegistry(factory,dataSourceSetting.getName(),judgeDatabase(dataSourceSetting.getUrl())
+                                , finalTemplatePath)){
                             targetSqlSessionFactory[0] = targetSqlSessionFactory(key);
                             sqlSessionFactoryMap.putIfAbsent(key,targetSqlSessionFactory[0]);
                         }
@@ -127,7 +136,8 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
      * @Param [sqlSessionFactory]
      * @return  boolean
      **/
-    private boolean mapperRegistry(SqlSessionFactory sqlSessionFactory, String dataSourceName, DataBaseType dataBaseType){
+    private boolean mapperRegistry(SqlSessionFactory sqlSessionFactory, String dataSourceName, DataBaseType dataBaseType
+            ,String templatePath){
         boolean flag = false;
         try(SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE, TransactionIsolationLevel.READ_COMMITTED)) {
             String findTableSql = "";
@@ -145,7 +155,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             }
             ResultSet resultSet = sqlSession.getConnection().prepareStatement(findTableSql).executeQuery();
             List<Map<String, Object>> mapList = convertList(resultSet);
-            String content = getFileContent("templates\\Mapper.template");
+            String content = getFileContent(templatePath);
             List<Class> mapperClasses = new ArrayList<>();
             MapperClassHolder mapperClassHolder = new MapperClassHolder(dataSourceName);
             for (Map<String, Object> map : mapList) {
