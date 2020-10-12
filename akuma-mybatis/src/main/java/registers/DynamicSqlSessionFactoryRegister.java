@@ -119,7 +119,10 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
                 try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE,true)){
                     Object targetMapper = sqlSession.getMapper(targetMapperClass);
                     Method load = targetMapperClass.getDeclaredMethod(methodName, parameterTypes);
-                    sqlSession.commit();
+                    if (methodName.equals("pageList")){
+                        //分页查询需要先组装参数
+                        parameters[0] = (((int)parameters[0])-1) * ((int)parameters[1]);
+                    }
                     result.set(load.invoke(targetMapper, parameters));
                 }catch (Exception e){
                     log.error(e.getMessage());
@@ -149,8 +152,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
                     findTableSql = "SELECT Name AS TABLE_NAME FROM SysObjects WHERE XType='U'";
                     break;
                 case ORACLE:
-                    // TODO: 2020-10-10 oracle待测试
-                    findTableSql = "";
+                    findTableSql = "SELECT TABLE_NAME FROM USER_TABLES ";
                     break;
             }
             ResultSet resultSet = sqlSession.getConnection().prepareStatement(findTableSql).executeQuery();
@@ -161,7 +163,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             for (Map<String, Object> map : mapList) {
                 String tableName = String.valueOf(map.get(SqlSessionFactoryConstants.DEFAULT_TABLE_NAME));
                 String targetContent = content;
-                targetContent = Parser.parse("${","}",targetContent,lineToHump(tableName),tableName,tableName,tableName);
+                targetContent = Parser.parse("@{","}",targetContent,lineToHump(tableName),tableName,tableName,tableName);
                 String name = lineToHump(tableName) + SqlSessionFactoryConstants.DEFAULT_MAPPER_SUFFIX;
                 Class mapperClass = classRegistry.compile(name,targetContent,SqlSessionFactoryConstants.DEFAULT_MAPPER_PACKAGE);
                 mapperClassHolder.addMapperClass(name, mapperClass);

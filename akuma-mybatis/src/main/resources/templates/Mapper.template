@@ -6,15 +6,15 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
 
-public interface ${mapperName}Mapper {
+public interface @{mapperName}Mapper {
 
-    @Delete(value = "delete from ${table} where id = #{id}")
+    @Delete(value = "delete from @{table} where id = #{id}")
     int delete(@Param(value="id") int id);
 
-    @Select(value = "SELECT * FROM ${table} WHERE id = #{id}")
+    @Select(value = "SELECT * FROM @{table} WHERE id = #{id}")
     Map<String,Object> load(@Param(value="id") int id);
 
-    @Select(value = "SELECT * FROM ${table} LIMIT #{offset},#{pagesize}")
+    @Select(value = "SELECT * FROM @{table} LIMIT ${offset},${pagesize}")
     List<Map<String,Object>> pageList(@Param(value="offset") int offset,@Param(value = "pagesize") int pagesize);
 
     int pageListCount(int offset,int pagesize);

@@ -32,8 +32,8 @@ public class SimpleSqlSessionFactoryTestDemo {
                 new Class[]{int.class}, new Object[]{1});
         System.out.println(result);
         System.out.println("--------------------------");
-        result = register.executeMapperMethod(dataSourceName, "operation_log", "delete",
-                new Class[]{int.class}, new Object[]{5});
+        result = register.executeMapperMethod(dataSourceName, "operation_log", "pageList",
+                new Class[]{int.class,int.class}, new Object[]{1,10});
         System.out.println(result);
     }
 
