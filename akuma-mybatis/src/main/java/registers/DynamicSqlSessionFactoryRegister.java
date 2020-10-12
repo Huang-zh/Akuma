@@ -5,7 +5,6 @@ import com.huang.akuma.constants.DataSourceType;
 import com.huang.akuma.datasource.settings.DataSourceSetting;
 import constants.SqlSessionFactoryConstants;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -117,9 +116,10 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             String mapperName = lineToHump(tableName).concat(SqlSessionFactoryConstants.DEFAULT_MAPPER_SUFFIX);
             if (mapperClassHolder.containsMapper(mapperName)){
                 Class<?> targetMapperClass = mapperClassHolder.targetMapperClass(mapperName);
-                try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE,TransactionIsolationLevel.READ_COMMITTED)){
+                try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.SIMPLE,true)){
                     Object targetMapper = sqlSession.getMapper(targetMapperClass);
                     Method load = targetMapperClass.getDeclaredMethod(methodName, parameterTypes);
+                    sqlSession.commit();
                     result.set(load.invoke(targetMapper, parameters));
                 }catch (Exception e){
                     log.error(e.getMessage());
@@ -161,7 +161,7 @@ public class DynamicSqlSessionFactoryRegister extends AbstractDynamicSqlSessionF
             for (Map<String, Object> map : mapList) {
                 String tableName = String.valueOf(map.get(SqlSessionFactoryConstants.DEFAULT_TABLE_NAME));
                 String targetContent = content;
-                targetContent = Parser.parse("${","}",targetContent,lineToHump(tableName),tableName);
+                targetContent = Parser.parse("${","}",targetContent,lineToHump(tableName),tableName,tableName,tableName);
                 String name = lineToHump(tableName) + SqlSessionFactoryConstants.DEFAULT_MAPPER_SUFFIX;
                 Class mapperClass = classRegistry.compile(name,targetContent,SqlSessionFactoryConstants.DEFAULT_MAPPER_PACKAGE);
                 mapperClassHolder.addMapperClass(name, mapperClass);

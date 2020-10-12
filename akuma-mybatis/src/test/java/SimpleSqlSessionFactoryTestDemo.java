@@ -21,7 +21,7 @@ public class SimpleSqlSessionFactoryTestDemo {
     @Test
     public void test() throws Throwable {
         String dataSourceName = "testOfShopWithDruid";
-        DataSourceSetting sourceSetting = new DataSourceSetting(dataSourceName,"jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
+        DataSourceSetting sourceSetting = new DataSourceSetting(dataSourceName,"jdbc:mysql://127.0.0.1:3306/logging-system?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
                 ,"root","123456");
         SqlSessionFactory factory = register.sqlSessionFactoryRegistry(sourceSetting);
         SqlSession sqlSession = factory.openSession(ExecutorType.BATCH, TransactionIsolationLevel.READ_COMMITTED);
@@ -32,8 +32,8 @@ public class SimpleSqlSessionFactoryTestDemo {
                 new Class[]{int.class}, new Object[]{1});
         System.out.println(result);
         System.out.println("--------------------------");
-        result = register.executeMapperMethod(dataSourceName, "operation_log", "load",
-                new Class[]{int.class}, new Object[]{2});
+        result = register.executeMapperMethod(dataSourceName, "operation_log", "delete",
+                new Class[]{int.class}, new Object[]{5});
         System.out.println(result);
     }
 
